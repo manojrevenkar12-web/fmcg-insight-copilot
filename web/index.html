@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Insight Copilot</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><b>Insight Copilot</b><span>Crunchwell Snacks · procurement, manufacturing, sales</span></div>
+    <div class="who">
+      <label for="user">Signed in as</label>
+      <select id="user">
+        <option value="demo-analyst-key">Group Analyst (all countries)</option>
+        <option value="demo-sales-nl-key">Sales Manager NL</option>
+        <option value="demo-plant-pl-key">Plant Manager PL</option>
+        <option value="demo-admin-key">AI Programme Admin</option>
+      </select>
+    </div>
+  </header>
+
+  <main>
+    <section class="ask" aria-labelledby="ask-title">
+      <h1 id="ask-title">Ask about your KPIs</h1>
+      <p class="lede">Answers come only from governed KPI definitions. Every number is checked against the data, and you can see exactly how it was calculated.</p>
+      <form id="ask-form">
+        <label class="sr" for="q">Question</label>
+        <input id="q" name="q" autocomplete="off" maxlength="500" placeholder="e.g. Which supplier had the worst OTIF last quarter?">
+        <button type="submit">Ask</button>
+      </form>
+      <div class="examples" id="examples"></div>
+      <p class="status" id="status" role="status"></p>
+    </section>
+
+    <section id="result" class="result" hidden aria-live="polite">
+      <div class="answer-card">
+        <p class="answer" id="answer"></p>
+        <div class="figures" id="figures"></div>
+        <div class="chart" id="chart"></div>
+        <div class="checks" id="checks"></div>
+        <div class="feedback">
+          <span>Was this useful?</span>
+          <button type="button" data-rating="up">Yes</button>
+          <button type="button" data-rating="down">No</button>
+        </div>
+      </div>
+      <details class="how" id="how">
+        <summary>How this was calculated</summary>
+        <div id="how-body"></div>
+      </details>
+    </section>
+
+    <aside class="dq" aria-labelledby="dq-title">
+      <h2 id="dq-title">Data status</h2>
+      <p id="asof"></p>
+      <table id="dq"><thead><tr><th>Source</th><th>Rows passed</th><th>Held back</th></tr></thead><tbody></tbody></table>
+    </aside>
+  </main>
+</body>
+</html>

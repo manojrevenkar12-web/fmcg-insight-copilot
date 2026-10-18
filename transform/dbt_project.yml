@@ -1,0 +1,28 @@
+name: insight
+version: 1.0.0
+config-version: 2
+profile: insight
+
+model-paths: [models]
+macro-paths: [macros]
+test-paths: [tests]
+target-path: target
+clean-targets: [target, dbt_packages]
+
+vars:
+  # Business date the extract describes (from data/landing/_load_manifest.json).
+  data_as_of: "2026-09-30"
+  # A delivery counts as "in full" at >= 98% of the ordered quantity.
+  in_full_tolerance: 0.98
+
+models:
+  insight:
+    staging:
+      +schema: staging
+      +materialized: view
+    quality:
+      +schema: quality
+      +materialized: table
+    marts:
+      +schema: marts
+      +materialized: table

@@ -1,0 +1,10 @@
+.git
+.github
+warehouse
+data/landing
+transform/target
+transform/logs
+**/__pycache__
+**/*.egg-info
+.pytest_cache
+.ruff_cache

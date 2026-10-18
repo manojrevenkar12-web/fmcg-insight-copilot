@@ -1,0 +1,100 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: Calendar for 2025-2026 with year, quarter, month and ISO week labels.
+    columns:
+      - name: date_day
+        tests: [unique, not_null]
+
+  - name: dim_supplier
+    description: Suppliers from ERP master data.
+    columns:
+      - name: supplier_id
+        tests: [unique, not_null]
+
+  - name: dim_material
+    description: Purchased materials with their contract price.
+    columns:
+      - name: material_id
+        tests: [unique, not_null]
+      - name: contract_price_eur_per_kg
+        tests: [not_null]
+
+  - name: dim_plant
+    description: Manufacturing plants.
+    columns:
+      - name: plant_id
+        tests: [unique, not_null]
+
+  - name: dim_product
+    description: Sellable SKUs.
+    columns:
+      - name: sku
+        tests: [unique, not_null]
+
+  - name: dim_customer
+    description: Retail customers with sales channel and country.
+    columns:
+      - name: customer_id
+        tests: [unique, not_null]
+      - name: customer_country
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['DE', 'NL', 'PL', 'FR']
+
+  - name: fct_purchase_deliveries
+    description: One row per delivered purchase-order line that passed the quality layer.
+    columns:
+      - name: po_line_id
+        tests: [unique, not_null]
+      - name: supplier_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_supplier')
+                field: supplier_id
+      - name: material_id
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_material')
+                field: material_id
+      - name: delivered_kg
+        tests: [not_null]
+
+  - name: fct_production
+    description: One row per production line and day. ideal_output_kg is the OEE denominator.
+    columns:
+      - name: run_id
+        tests: [unique, not_null]
+      - name: plant_id
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_plant')
+                field: plant_id
+
+  - name: fct_downtime
+    description: Downtime events with reason and whether they were planned.
+    columns:
+      - name: event_id
+        tests: [unique, not_null]
+      - name: downtime_reason
+        tests: [not_null]
+
+  - name: fct_sales
+    description: One row per sales order line that passed the quality layer.
+    columns:
+      - name: order_line_id
+        tests: [unique, not_null]
+      - name: sku
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_product')
+                field: sku
+      - name: country
+        tests: [not_null]

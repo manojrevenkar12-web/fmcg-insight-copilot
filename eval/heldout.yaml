@@ -1,0 +1,64 @@
+# Held-out paraphrases, written AFTER the planner was tuned on golden.yaml and not used for
+# tuning. Results are reported as they came out — this set measures how the rule-based
+# planner generalises to wording it was not shaped on.
+
+cases:
+  - id: ho-01
+    question: Who was our least reliable supplier in Q3 2026?
+    expect: { metrics: [otif_rate], dimensions: [supplier], period: Q3 2026 }
+    check_sql: select avg(is_otif::int) from marts.fct_purchase_deliveries where delivered_date between '2026-07-01' and '2026-09-30'
+  - id: ho-02
+    question: How much more than contract did we pay for oil this year?
+    expect: { metrics: [price_variance], filters: { material: [Sunflower oil] }, period: year to date (30 Sep 2026) }
+    check_sql: select sum(price_variance_eur) from marts.fct_purchase_deliveries where material_id = 'MAT-OIL' and delivered_date between '2026-01-01' and '2026-09-30'
+  - id: ho-03
+    question: Breakdown hours per line in August 2026
+    expect: { metrics: [unplanned_downtime_hours], dimensions: [line], period: August 2026 }
+    check_sql: select sum(duration_minutes) filter (where not is_planned) / 60 from marts.fct_downtime where downtime_date between '2026-08-01' and '2026-08-31'
+  - id: ho-04
+    question: Is the Dutch market giving away more in promotions than last quarter?
+    expect: { metrics: [promo_share], filters: { country: [NL] }, period: Q3 2026, compare: true }
+    check_sql: select sum(promo_discount_eur) / sum(gross_revenue_eur) from marts.fct_sales where country = 'NL' and order_date between '2026-07-01' and '2026-09-30'
+  - id: ho-05
+    question: Which factory wastes the most product?
+    expect: { metrics: [scrap_rate], dimensions: [plant], period: year to date (30 Sep 2026) }
+    check_sql: select sum(scrap_kg) / sum(total_kg) from marts.fct_production where production_date between '2026-01-01' and '2026-09-30'
+  - id: ho-06
+    question: Turnover per retailer in Poland during 2025
+    expect: { metrics: [net_revenue], dimensions: [customer], filters: { country: [PL] }, period: '2025' }
+    check_sql: select sum(net_revenue_eur) from marts.fct_sales where country = 'PL' and year(order_date) = 2025
+  - id: ho-07
+    question: How effective were our lines at Polderland last month?
+    expect: { metrics: [oee], dimensions: [line], filters: { plant: [NL01] }, period: September 2026 }
+    check_sql: select sum(good_kg) / sum(ideal_output_kg) from marts.fct_production where plant_id = 'NL01' and production_date between '2026-09-01' and '2026-09-30'
+  - id: ho-08
+    question: Average price we realise per kilo, by brand, in Q2 2026
+    expect: { metrics: [net_price_per_kg], dimensions: [brand], period: Q2 2026 }
+    check_sql: select sum(net_revenue_eur) / sum(volume_kg) from marts.fct_sales where order_date between '2026-04-01' and '2026-06-30'
+  - id: ho-09
+    question: Did returns go up in the convenience channel in Q3 2026?
+    expect: { metrics: [return_rate], filters: { channel: [Convenience] }, period: Q3 2026, compare: true }
+    check_sql: select sum(returned_cases) / sum(cases) from marts.fct_sales f join marts.dim_customer c using (customer_id) where c.channel = 'Convenience' and order_date between '2026-07-01' and '2026-09-30'
+  - id: ho-10
+    question: Tonnes of potatoes delivered by Rhenish Potato Coop in 2025
+    expect: { metrics: [spend], filters: { supplier: [Rhenish Potato Coop], material: [Potatoes] }, period: '2025' }
+    note: there is no delivered-volume KPI in the catalog; the honest outcome is a refusal or a different KPI, so this case is expected to fail as written
+    check_sql: select sum(spend_eur) from marts.fct_purchase_deliveries where supplier_id = 'SUP-02' and material_id = 'MAT-POT' and year(delivered_date) = 2025
+  - id: ho-11
+    question: What share of planned time did DE01 actually run in Q1 2026?
+    expect: { metrics: [availability], filters: { plant: [DE01] }, period: Q1 2026 }
+    check_sql: select sum(run_minutes) / sum(planned_minutes) from marts.fct_production where plant_id = 'DE01' and production_date between '2026-01-01' and '2026-03-31'
+  - id: ho-12
+    question: Give me the gross margin by product
+    status: abstained
+  - id: ho-13
+    question: How many employees work at the Vistula plant?
+    status: abstained
+  - id: ho-14
+    question: Rank suppliers on incoming quality this year
+    expect: { metrics: [rejection_rate], dimensions: [supplier], period: year to date (30 Sep 2026) }
+    check_sql: select sum(rejected_kg) / sum(delivered_kg) from marts.fct_purchase_deliveries where delivered_date between '2026-01-01' and '2026-09-30'
+  - id: ho-15
+    question: Weekly sales volume in France last quarter
+    expect: { metrics: [sales_volume_tonnes], dimensions: [week], filters: { country: [FR] }, period: Q3 2026 }
+    check_sql: select sum(volume_kg) / 1000 from marts.fct_sales where country = 'FR' and order_date between '2026-07-01' and '2026-09-30'

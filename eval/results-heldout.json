@@ -1,0 +1,224 @@
+{
+  "generated_at": "2026-10-18T16:11:39+00:00",
+  "mode": "offline",
+  "suite": "heldout",
+  "cases": 15,
+  "passed": 6,
+  "metrics": {
+    "plan_accuracy": 0.308,
+    "numeric_accuracy": 1.0,
+    "status_accuracy": 0.6,
+    "verified_rate": 1.0,
+    "access_violations": 0,
+    "injection_flag_rate": null
+  },
+  "gates": [
+    {
+      "metric": "plan_accuracy",
+      "value": 0.308,
+      "threshold": 0.9,
+      "op": ">=",
+      "pass": false
+    },
+    {
+      "metric": "numeric_accuracy",
+      "value": 1.0,
+      "threshold": 1.0,
+      "op": ">=",
+      "pass": true
+    },
+    {
+      "metric": "status_accuracy",
+      "value": 0.6,
+      "threshold": 1.0,
+      "op": ">=",
+      "pass": false
+    },
+    {
+      "metric": "verified_rate",
+      "value": 1.0,
+      "threshold": 1.0,
+      "op": ">=",
+      "pass": true
+    },
+    {
+      "metric": "access_violations",
+      "value": 0,
+      "threshold": 0,
+      "op": "<=",
+      "pass": true
+    },
+    {
+      "metric": "injection_flag_rate",
+      "value": null,
+      "threshold": 1.0,
+      "op": ">=",
+      "pass": true
+    }
+  ],
+  "latency_ms": {
+    "p50": 9.3,
+    "p95": 319.8
+  },
+  "rows": [
+    {
+      "id": "ho-01",
+      "question": "Who was our least reliable supplier in Q3 2026?",
+      "ok": false,
+      "problems": [
+        "status abstained != answered",
+        "intent out_of_scope != metric"
+      ],
+      "answer": "I can only answer questions about the governed KPIs (procurement, manufacturing and sales). Try for example: \u201cWhich supplier had the worst OTIF last quarter?\u201d, \u201cOEE by line at PL01 in August 2026\u201d or \u201cNet revenue by country this year vs last year\u201d.",
+      "status": "abstained",
+      "latency_ms": 14.5
+    },
+    {
+      "id": "ho-02",
+      "question": "How much more than contract did we pay for oil this year?",
+      "ok": false,
+      "problems": [
+        "status abstained != answered",
+        "intent out_of_scope != metric"
+      ],
+      "answer": "I can only answer questions about the governed KPIs (procurement, manufacturing and sales). Try for example: \u201cWhich supplier had the worst OTIF last quarter?\u201d, \u201cOEE by line at PL01 in August 2026\u201d or \u201cNet revenue by country this year vs last year\u201d.",
+      "status": "abstained",
+      "latency_ms": 4.6
+    },
+    {
+      "id": "ho-03",
+      "question": "Breakdown hours per line in August 2026",
+      "ok": true,
+      "problems": [],
+      "answer": "Unplanned downtime was 63.2 h for August 2026. Across 9 production lines, PL01-L2 was highest at 52.3 h and PL01-L1 lowest at 0.0 h.",
+      "status": "answered",
+      "latency_ms": 319.8
+    },
+    {
+      "id": "ho-04",
+      "question": "Is the Dutch market giving away more in promotions than last quarter?",
+      "ok": false,
+      "problems": [
+        "compare False != True"
+      ],
+      "answer": "Promotion share of gross revenue was 12.5% for Q3 2026.",
+      "status": "answered",
+      "latency_ms": 19.2
+    },
+    {
+      "id": "ho-05",
+      "question": "Which factory wastes the most product?",
+      "ok": false,
+      "problems": [
+        "status abstained != answered",
+        "intent out_of_scope != metric"
+      ],
+      "answer": "I can only answer questions about the governed KPIs (procurement, manufacturing and sales). Try for example: \u201cWhich supplier had the worst OTIF last quarter?\u201d, \u201cOEE by line at PL01 in August 2026\u201d or \u201cNet revenue by country this year vs last year\u201d.",
+      "status": "abstained",
+      "latency_ms": 4.2
+    },
+    {
+      "id": "ho-06",
+      "question": "Turnover per retailer in Poland during 2025",
+      "ok": true,
+      "problems": [],
+      "answer": "Net revenue was \u20ac1,729,359 for 2025. Across 2 customers, Tani Rynek was highest at \u20ac997,818 and Kiosk24 lowest at \u20ac731,541.",
+      "status": "answered",
+      "latency_ms": 15.2
+    },
+    {
+      "id": "ho-07",
+      "question": "How effective were our lines at Polderland last month?",
+      "ok": false,
+      "problems": [
+        "status abstained != answered",
+        "intent out_of_scope != metric"
+      ],
+      "answer": "I can only answer questions about the governed KPIs (procurement, manufacturing and sales). Try for example: \u201cWhich supplier had the worst OTIF last quarter?\u201d, \u201cOEE by line at PL01 in August 2026\u201d or \u201cNet revenue by country this year vs last year\u201d.",
+      "status": "abstained",
+      "latency_ms": 4.5
+    },
+    {
+      "id": "ho-08",
+      "question": "Average price we realise per kilo, by brand, in Q2 2026",
+      "ok": true,
+      "problems": [],
+      "answer": "Net price per kg was \u20ac8.54/kg for Q2 2026. Across 3 brands, Curlz was highest at \u20ac9.63/kg and Crunchwell lowest at \u20ac7.94/kg.",
+      "status": "answered",
+      "latency_ms": 13.5
+    },
+    {
+      "id": "ho-09",
+      "question": "Did returns go up in the convenience channel in Q3 2026?",
+      "ok": false,
+      "problems": [
+        "compare False != True"
+      ],
+      "answer": "Return rate was 0.1% for Q3 2026.",
+      "status": "answered",
+      "latency_ms": 9.3
+    },
+    {
+      "id": "ho-10",
+      "question": "Tonnes of potatoes delivered by Rhenish Potato Coop in 2025",
+      "ok": false,
+      "problems": [
+        "status abstained != answered",
+        "intent out_of_scope != metric"
+      ],
+      "answer": "I can only answer questions about the governed KPIs (procurement, manufacturing and sales). Try for example: \u201cWhich supplier had the worst OTIF last quarter?\u201d, \u201cOEE by line at PL01 in August 2026\u201d or \u201cNet revenue by country this year vs last year\u201d.",
+      "status": "abstained",
+      "latency_ms": 4.4
+    },
+    {
+      "id": "ho-11",
+      "question": "What share of planned time did DE01 actually run in Q1 2026?",
+      "ok": false,
+      "problems": [
+        "status abstained != answered",
+        "intent out_of_scope != metric"
+      ],
+      "answer": "I can only answer questions about the governed KPIs (procurement, manufacturing and sales). Try for example: \u201cWhich supplier had the worst OTIF last quarter?\u201d, \u201cOEE by line at PL01 in August 2026\u201d or \u201cNet revenue by country this year vs last year\u201d.",
+      "status": "abstained",
+      "latency_ms": 4.3
+    },
+    {
+      "id": "ho-12",
+      "question": "Give me the gross margin by product",
+      "ok": true,
+      "problems": [],
+      "answer": "I can only answer questions about the governed KPIs (procurement, manufacturing and sales). Try for example: \u201cWhich supplier had the worst OTIF last quarter?\u201d, \u201cOEE by line at PL01 in August 2026\u201d or \u201cNet revenue by country this year vs last year\u201d.",
+      "status": "abstained",
+      "latency_ms": 4.5
+    },
+    {
+      "id": "ho-13",
+      "question": "How many employees work at the Vistula plant?",
+      "ok": true,
+      "problems": [],
+      "answer": "I can only answer questions about the governed KPIs (procurement, manufacturing and sales). Try for example: \u201cWhich supplier had the worst OTIF last quarter?\u201d, \u201cOEE by line at PL01 in August 2026\u201d or \u201cNet revenue by country this year vs last year\u201d.",
+      "status": "abstained",
+      "latency_ms": 4.0
+    },
+    {
+      "id": "ho-14",
+      "question": "Rank suppliers on incoming quality this year",
+      "ok": false,
+      "problems": [
+        "dimensions [] != ['supplier']"
+      ],
+      "answer": "Incoming quality rejection rate was 0.2% for year to date (30 Sep 2026).",
+      "status": "answered",
+      "latency_ms": 12.1
+    },
+    {
+      "id": "ho-15",
+      "question": "Weekly sales volume in France last quarter",
+      "ok": true,
+      "problems": [],
+      "answer": "Sales volume was 59.4 t for Q3 2026. By iso week, it ranged from 1.0 t in 2026-W27 to 7.1 t in 2026-W32; the latest iso week (2026-W40) was 1.9 t.",
+      "status": "answered",
+      "latency_ms": 12.0
+    }
+  ]
+}

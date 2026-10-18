@@ -1,0 +1,24 @@
+# API users. Keys are stored only as SHA-256 hashes. The demo keys are documented in the README
+# for local use; in production, identities come from Microsoft Entra ID and this file maps
+# groups to roles and countries.
+users:
+  - id: analyst
+    name: Group Analyst
+    roles: [analyst]
+    countries: null
+    key_sha256: ba041bbd3d5f84055d10645d916eeace5ad28692224918c320e627f95bccbd3b
+  - id: sales-nl
+    name: Sales Manager Netherlands
+    roles: [analyst]
+    countries: [NL]
+    key_sha256: f94c173e19088714ebc31d04261509521f5176540c712fc5952234882fb34926
+  - id: plant-pl
+    name: Plant Manager Vistula (PL)
+    roles: [analyst]
+    countries: [PL]
+    key_sha256: 18b1131efe9ce5bd6557794733ef15fb001a38fd178c87412baf9413f2a90567
+  - id: ai-admin
+    name: AI Programme Admin
+    roles: [analyst, admin]
+    countries: null
+    key_sha256: ac5bb3526d3be432ba19fb1fc0712d350c160bd2169cd24401c9fcaeaac2d860

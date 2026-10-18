@@ -1,0 +1,233 @@
+# Semantic layer: the governed definition of every KPI the copilot may report.
+#
+# The AI never writes SQL. It picks metrics, dimensions, filters and a period from this
+# catalog; the compiler turns that into parameterised SQL over the consumption layer.
+# Each metric names a business owner, so a disputed number has someone accountable.
+
+facts:
+  fct_purchase_deliveries:
+    label: Purchase deliveries
+    time_column: delivered_date
+    country_column: dim_plant.plant_country     # row-level access: plant country
+    joins:
+      dim_supplier: supplier_id
+      dim_material: material_id
+      dim_plant: plant_id
+  fct_production:
+    label: Production runs
+    time_column: production_date
+    country_column: dim_plant.plant_country
+    joins:
+      dim_plant: plant_id
+  fct_downtime:
+    label: Downtime events
+    time_column: downtime_date
+    country_column: dim_plant.plant_country
+    joins:
+      dim_plant: plant_id
+  fct_sales:
+    label: Sales order lines
+    time_column: order_date
+    country_column: fct.country
+    joins:
+      dim_customer: customer_id
+      dim_product: sku
+
+dimensions:
+  supplier:        { column: dim_supplier.supplier_name, label: Supplier, synonyms: [supplier, suppliers, vendor, vendors] }
+  supplier_country: { column: dim_supplier.supplier_country, label: Supplier country, synonyms: [supplier country, sourcing country] }
+  material:        { column: dim_material.material_name, label: Material, synonyms: [material, materials, ingredient, ingredients, commodity, commodities] }
+  material_category: { column: dim_material.material_category, label: Material category, synonyms: [material category] }
+  plant:           { column: dim_plant.plant_id, label: Plant, synonyms: [plant, plants, factory, factories, site, sites] }
+  line:            { column: fct.line_key, label: Production line, synonyms: [line, lines, production line, production lines] }
+  downtime_reason: { column: fct.downtime_reason, label: Downtime reason, synonyms: [reason, reasons, cause, causes] }
+  country:         { column: fct.country, label: Country, synonyms: [country, countries, market, markets] }
+  customer:        { column: dim_customer.customer_name, label: Customer, synonyms: [customer, customers, retailer, retailers, account, accounts] }
+  channel:         { column: dim_customer.channel, label: Channel, synonyms: [channel, channels] }
+  brand:           { column: dim_product.brand, label: Brand, synonyms: [brand, brands] }
+  product:         { column: dim_product.product_name, label: Product, synonyms: [product, products, sku, skus, item, items] }
+  product_category: { column: dim_product.product_category, label: Product category, synonyms: [product category, category, categories, segment, segments] }
+  year:            { column: dim_date.year, label: Year, synonyms: [year, yearly, annual, annually] }
+  quarter:         { column: dim_date.quarter, label: Quarter, synonyms: [quarter, quarterly, quarters] }
+  month:           { column: dim_date.month, label: Month, synonyms: [month, monthly, months, trend, over time] }
+  week:            { column: dim_date.iso_week, label: ISO week, synonyms: [week, weekly, weeks] }
+
+metrics:
+  # ---------------- procurement ----------------
+  - name: spend
+    label: Purchase spend
+    fact: fct_purchase_deliveries
+    expression: sum(fct.spend_eur)
+    unit: eur
+    direction: neutral
+    owner: Procurement
+    description: Amount paid for delivered material (delivered kg × actual unit price).
+    synonyms: [spend, spending, purchase spend, purchasing spend, procurement spend, amount paid]
+    dimensions: [supplier, supplier_country, material, material_category, plant, year, quarter, month, week]
+
+  - name: price_variance
+    label: Purchase price variance (PPV)
+    fact: fct_purchase_deliveries
+    expression: sum(fct.price_variance_eur)
+    unit: eur
+    direction: down
+    owner: Procurement
+    description: Extra cost versus contract price — (actual price − contract price) × delivered kg. Positive means we paid more than the contract.
+    synonyms: [ppv, price variance, purchase price variance, paying above contract, above contract, overpaying, price increase]
+    dimensions: [supplier, supplier_country, material, material_category, plant, year, quarter, month, week]
+
+  - name: otif_rate
+    label: Supplier OTIF
+    fact: fct_purchase_deliveries
+    expression: avg(case when fct.is_otif then 1.0 else 0.0 end)
+    unit: percent
+    direction: up
+    owner: Procurement
+    description: Share of deliveries that arrived on or before the promised date and with at least 98% of the ordered quantity.
+    synonyms: [otif, on time in full, on-time in-full, delivery reliability, supplier reliability, supplier performance, delivery performance]
+    dimensions: [supplier, supplier_country, material, material_category, plant, year, quarter, month, week]
+
+  - name: on_time_rate
+    label: On-time delivery rate
+    fact: fct_purchase_deliveries
+    expression: avg(case when fct.is_on_time then 1.0 else 0.0 end)
+    unit: percent
+    direction: up
+    owner: Procurement
+    description: Share of deliveries that arrived on or before the promised date, regardless of quantity.
+    synonyms: [on time delivery, on-time delivery, late deliveries, punctuality]
+    dimensions: [supplier, supplier_country, material, material_category, plant, year, quarter, month, week]
+
+  - name: rejection_rate
+    label: Incoming quality rejection rate
+    fact: fct_purchase_deliveries
+    expression: sum(fct.rejected_kg) / nullif(sum(fct.delivered_kg), 0)
+    unit: percent
+    direction: down
+    owner: Quality
+    description: Share of delivered material rejected at goods receipt for quality reasons.
+    synonyms: [rejection rate, quality rejections, rejected material, incoming quality]
+    dimensions: [supplier, supplier_country, material, material_category, plant, year, quarter, month, week]
+
+  # ---------------- manufacturing ----------------
+  - name: oee
+    label: OEE
+    fact: fct_production
+    expression: sum(fct.good_kg) / nullif(sum(fct.ideal_output_kg), 0)
+    unit: percent
+    direction: up
+    owner: Manufacturing Excellence
+    description: Overall equipment effectiveness = availability × performance × quality, computed as good output ÷ ideal output for the planned time. Aggregated from totals — never by averaging line OEEs, which would overweight small lines.
+    synonyms: [oee, overall equipment effectiveness, equipment effectiveness, line efficiency]
+    dimensions: [plant, line, year, quarter, month, week]
+
+  - name: availability
+    label: Availability
+    fact: fct_production
+    expression: sum(fct.run_minutes) / nullif(sum(fct.planned_minutes), 0)
+    unit: percent
+    direction: up
+    owner: Manufacturing Excellence
+    description: Share of planned production time the line was actually running.
+    synonyms: [availability, uptime, run time share]
+    dimensions: [plant, line, year, quarter, month, week]
+
+  - name: scrap_rate
+    label: Scrap rate
+    fact: fct_production
+    expression: sum(fct.scrap_kg) / nullif(sum(fct.total_kg), 0)
+    unit: percent
+    direction: down
+    owner: Manufacturing Excellence
+    description: Share of produced kilograms scrapped.
+    synonyms: [scrap, scrap rate, waste, yield loss]
+    dimensions: [plant, line, year, quarter, month, week]
+
+  - name: output_tonnes
+    label: Good output
+    fact: fct_production
+    expression: sum(fct.good_kg) / 1000
+    unit: tonnes
+    direction: up
+    owner: Manufacturing Excellence
+    description: Good (saleable) output in tonnes.
+    synonyms: [output, production volume, produced, production output, tonnes produced]
+    dimensions: [plant, line, year, quarter, month, week]
+
+  - name: unplanned_downtime_hours
+    label: Unplanned downtime
+    fact: fct_downtime
+    expression: sum(case when not fct.is_planned then fct.duration_minutes else 0 end) / 60
+    unit: hours
+    direction: down
+    owner: Maintenance
+    description: Hours of downtime from breakdowns, electrical faults, material shortages and quality holds (excludes maintenance, changeovers and cleaning).
+    synonyms: [unplanned downtime, breakdowns, breakdown hours, unplanned stops, unplanned outages]
+    dimensions: [plant, line, downtime_reason, year, quarter, month, week]
+
+  - name: downtime_hours
+    label: Total downtime
+    fact: fct_downtime
+    expression: sum(fct.duration_minutes) / 60
+    unit: hours
+    direction: down
+    owner: Maintenance
+    description: All recorded downtime hours, planned and unplanned.
+    synonyms: [downtime, total downtime, stoppages, stop time]
+    dimensions: [plant, line, downtime_reason, year, quarter, month, week]
+
+  # ---------------- sales ----------------
+  - name: net_revenue
+    label: Net revenue
+    fact: fct_sales
+    expression: sum(fct.net_revenue_eur)
+    unit: eur
+    direction: up
+    owner: Sales Controlling
+    description: Gross revenue minus promotional discounts.
+    synonyms: [net revenue, revenue, sales, turnover, net sales, income]
+    dimensions: [country, customer, channel, brand, product, product_category, year, quarter, month, week]
+
+  - name: sales_volume_tonnes
+    label: Sales volume
+    fact: fct_sales
+    expression: sum(fct.volume_kg) / 1000
+    unit: tonnes
+    direction: up
+    owner: Sales Controlling
+    description: Volume sold in tonnes.
+    synonyms: [sales volume, volume, tonnes sold, volume sold]
+    dimensions: [country, customer, channel, brand, product, product_category, year, quarter, month, week]
+
+  - name: promo_share
+    label: Promotion share of gross revenue
+    fact: fct_sales
+    expression: sum(fct.promo_discount_eur) / nullif(sum(fct.gross_revenue_eur), 0)
+    unit: percent
+    direction: down
+    owner: Revenue Management
+    description: Promotional discounts as a share of gross revenue — how much revenue is given away in promotions.
+    synonyms: [promo share, promotion share, promotional spend, promotions, discount share, trade spend, promo intensity]
+    dimensions: [country, customer, channel, brand, product, product_category, year, quarter, month, week]
+
+  - name: return_rate
+    label: Return rate
+    fact: fct_sales
+    expression: sum(fct.returned_cases) / nullif(sum(fct.cases), 0)
+    unit: percent
+    direction: down
+    owner: Sales Controlling
+    description: Share of cases returned by customers.
+    synonyms: [return rate, returns, returned cases]
+    dimensions: [country, customer, channel, brand, product, product_category, year, quarter, month, week]
+
+  - name: net_price_per_kg
+    label: Net price per kg
+    fact: fct_sales
+    expression: sum(fct.net_revenue_eur) / nullif(sum(fct.volume_kg), 0)
+    unit: eur_per_kg
+    direction: up
+    owner: Revenue Management
+    description: Average net revenue per kilogram sold.
+    synonyms: [net price, price per kg, average price, price realisation, price realization]
+    dimensions: [country, customer, channel, brand, product, product_category, year, quarter, month, week]
