@@ -4,7 +4,9 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+# Project root: INSIGHT_HOME if set (containers, installed package), else the source checkout.
+_checkout = Path(__file__).resolve().parents[2]
+ROOT = Path(os.getenv("INSIGHT_HOME") or (_checkout if (_checkout / "semantic").exists() else Path.cwd()))
 
 
 @dataclass(frozen=True)
